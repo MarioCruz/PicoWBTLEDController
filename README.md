@@ -7,8 +7,12 @@ The Pico W Bluetooth LED Controller is an engaging IoT project that brings toget
 At its core, this project enables users to control an LED connected to a Raspberry Pi Pico W through an elegant web interface. Users can toggle the LED on and off, as well as trigger various eye-catching patterns like flashing sequences, smooth brightness pulsing, SOS signals, and heartbeat simulations.
 
 The system comprises two main components:
-1. **Pico W Firmware**: MicroPython code running on the Pico W that establishes a BLE server and controls the LED
-2. **Web Interface**: A responsive HTML/CSS/JavaScript application that connects to the Pico W over Bluetooth
+1. **Pico W Firmware**:( Main.py) MicroPython code running on the Pico W that establishes a BLE server and controls the LED
+      Main.py on a Raspberry Pi Pico W microcontroller to control LED functionality via Bluetooth Low Energy (BLE). It initializes an LED on GPIO pin 16, sets up PWM for brightness control, and provides various LED           light patterns including on/off, flashing, pulsing, SOS, and heartbeat effects. The script implements Bluetooth communication to receive commands from external devices wirelessly.
+
+3. **Web Interface**: (BTComplexPretty.html) A responsive HTML/CSS/JavaScript application that connects to the Pico W over Bluetooth
+
+     This is a web-based user interface titled "Pico W LED Control" for connecting to and controlling the Pico W via Bluetooth. The interface provides buttons to connect and disconnect from the device, and includes JavaScript functionality for sending LED commands wirelessly. The web interface features status messaging and command transmission to control the various LED patterns defined in the Main.py script.
 
 ## Technical Implementation
 
