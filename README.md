@@ -12,7 +12,7 @@ The system comprises two main components:
 
 3. **Web Interface**: (BTComplexPretty.html) A responsive HTML/CSS/JavaScript application that connects to the Pico W over Bluetooth
 
-     This is a web-based user interface titled "Pico W LED Control" for connecting to and controlling the Pico W via Bluetooth. The interface provides buttons to connect and disconnect from the device, and includes JavaScript functionality for sending LED commands wirelessly. The web interface features status messaging and command transmission to control the various LED patterns defined in the Main.py script.
+     This is a web-based user interface titled "Pico W LED Control" for connecting to and controlling the Pico W via Bluetooth. The interface provides buttons to connect and disconnect from the device, and includes          JavaScript functionality for sending LED commands wirelessly. The web interface features status messaging and command transmission to control the various LED patterns defined in the Main.py script. (Needs Chrome)
 
 ## Technical Implementation
 
