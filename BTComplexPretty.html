@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Pico W LED Control</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5B21B6;
+            --primary-light: #7C3AED;
+            --primary-dark: #4C1D95;
+            --secondary: #0EA5E9;
+            --accent: #F97316;
+            --danger: #DC2626;
+            --success: #16A34A;
+            --warning: #F59E0B;
+            --gray-dark: #1F2937;
+            --gray: #4B5563;
+            --gray-light: #D1D5DB;
+            --white: #FFFFFF;
+            --background: #F9FAFB;
+            --card: #FFFFFF;
+            --transition: all 0.3s ease;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            color: var(--gray-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            width: 60%;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            bottom: -8px;
+            left: 20%;
+            border-radius: 2px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: var(--gray);
+            margin-top: 15px;
+        }
+
+        .card {
+            background-color: var(--card);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid var(--gray-light);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .status-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 25px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .status-dot.connected {
+            background-color: var(--success);
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+        }
+
+        .status-dot.disconnected {
+            background-color: var(--gray);
+            box-shadow: 0 0 0 3px rgba(75, 85, 99, 0.2);
+        }
+
+        .status-text {
+            font-weight: 500;
+        }
+
+        .device-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        #statusMessage {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-left: auto;
+            max-width: 60%;
+            text-align: right;
+        }
+
+        .btn {
+            cursor: pointer;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            padding: 12px 20px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background-color: #EF4444;
+        }
+
+        .btn-lg {
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            width: 100%;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .control-btn {
+            padding: 16px 10px;
+            text-align: center;
+            font-weight: 500;
+            border-radius: 12px;
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .control-btn i {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .btn-on {
+            background: linear-gradient(135deg, var(--success), #15803D);
+        }
+
+        .btn-off {
+            background: linear-gradient(135deg, var(--gray-dark), #374151);
+        }
+
+        .btn-flash {
+            background: linear-gradient(135deg, var(--warning), #D97706);
+        }
+
+        .btn-pulse {
+            background: linear-gradient(135deg, var(--secondary), #0369A1);
+        }
+
+        .btn-sos {
+            background: linear-gradient(135deg, var(--danger), #B91C1C);
+        }
+
+        .btn-heart {
+            background: linear-gradient(135deg, #EC4899, #BE185D);
+        }
+
+        .icon {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .note {
+            margin-top: 30px;
+            background-color: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--gray);
+        }
+
+        .note strong {
+            color: var(--gray-dark);
+            font-weight: 600;
+        }
+
+        .connection-card {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .loading {
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            right: 15px;
+            margin-top: -10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: var(--white);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* SVG Icons */
+        .icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 400px) {
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .card {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Controls section transition */
+        .controls-section {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.5s ease, max-height 0.5s ease;
+        }
+
+        .controls-section.visible {
+            opacity: 1;
+            max-height: 1000px;
+        }
+
+        /* Animation for the status indicator */
+        .status-dot.connected {
+            animation: pulse 2s infinite;
+        }
+
+        /* Fancy ripple effect for buttons */
+        .btn::after {
+            content: '';
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .5s, opacity 1s;
+        }
+
+        .btn:active::after {
+            transform: scale(0, 0);
+            opacity: .3;
+            transition: 0s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Pico W LED Control</h1>
+            <p class="subtitle">Bluetooth LED Controller</p>
+        </header>
+
+        <div class="card status-card">
+            <div class="status-indicator">
+                <div id="statusDot" class="status-dot disconnected"></div>
+                <span id="statusText" class="status-text">Disconnected</span>
+            </div>
+            <div id="statusMessage">Ready to connect</div>
+        </div>
+
+        <!-- Connection Card -->
+        <div id="connectionCard" class="card connection-card">
+            <button id="connectBtn" class="btn btn-primary btn-lg">
+                Connect to Pico W
+            </button>
+        </div>
+
+        <!-- Controls Section (hidden initially) -->
+        <div id="controlsSection" class="controls-section">
+            <div class="card">
+                <h2>LED Controls</h2>
+                <div class="control-grid">
+                    <div id="onBtn" class="control-btn btn-on">
+                        <div class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        Turn ON
+                    </div>
+                    <div id="offBtn" class="control-btn btn-off">
+                        <div class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                            </svg>
+                        </div>
+                        Turn OFF
+                    </div>
+                    <div id="flashBtn" class="control-btn btn-flash">
+                        <div class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" transform="translate(4 0)" />
+                            </svg>
+                        </div>
+                        Flash 3x
+                    </div>
+                    <div id="pulseBtn" class="control-btn btn-pulse">
+                        <div class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                            </svg>
+                        </div>
+                        Pulse
+                    </div>
+                    <div id="sosBtn" class="control-btn btn-sos">
+                        <div class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        SOS Pattern
+                    </div>
+                    <div id="heartbeatBtn" class="control-btn btn-heart">
+                        <div class="icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                        </div>
+                        Heartbeat
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <button id="disconnectBtn" class="btn btn-danger btn-lg">Disconnect</button>
+            </div>
+        </div>
+
+        <div class="note">
+            <strong>Note:</strong> This interface requires Chrome or Edge with Web Bluetooth support. 
+            Each pattern will run once and then the LED will turn off automatically.
+        </div>
+    </div>
+
+    <script>
+        // LED Service UUIDs
+        const LED_SERVICE_UUID = '19b10000-e8f2-537e-4f6c-d104768a1214';
+        const LED_CHAR_UUID = '19b10001-e8f2-537e-4f6c-d104768a1214';
+        
+        // LED Modes
+        const LED_MODE = {
+            OFF: 0x00,
+            ON: 0x01,
+            FLASH: 0x02,
+            PULSE: 0x03,
+            SOS: 0x04,
+            HEARTBEAT: 0x05
+        };
+        
+        // DOM Elements
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const statusMessage = document.getElementById('statusMessage');
+        const connectionCard = document.getElementById('connectionCard');
+        const controlsSection = document.getElementById('controlsSection');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const onBtn = document.getElementById('onBtn');
+        const offBtn = document.getElementById('offBtn');
+        const flashBtn = document.getElementById('flashBtn');
+        const pulseBtn = document.getElementById('pulseBtn');
+        const sosBtn = document.getElementById('sosBtn');
+        const heartbeatBtn = document.getElementById('heartbeatBtn');
+        
+        // Global variables
+        let device = null;
+        let ledCharacteristic = null;
+        
+        // Helper functions
+        function updateStatus(connected, deviceName = '') {
+            if (connected) {
+                statusDot.classList.remove('disconnected');
+                statusDot.classList.add('connected');
+                statusText.innerHTML = `Connected to <span class="device-name">${deviceName}</span>`;
+                connectionCard.style.display = 'none';
+                controlsSection.classList.add('visible');
+            } else {
+                statusDot.classList.remove('connected');
+                statusDot.classList.add('disconnected');
+                statusText.textContent = 'Disconnected';
+                statusMessage.textContent = 'Ready to connect';
+                connectionCard.style.display = 'block';
+                controlsSection.classList.remove('visible');
+            }
+        }
+        
+        function setLoading(button, isLoading) {
+            if (isLoading) {
+                button.classList.add('loading');
+                button.disabled = true;
+            } else {
+                button.classList.remove('loading');
+                button.disabled = false;
+            }
+        }
+        
+        function updateStatusMessage(message) {
+            statusMessage.textContent = message;
+        }
+        
+        // Connect to Pico W
+        connectBtn.addEventListener('click', async () => {
+            try {
+                setLoading(connectBtn, true);
+                updateStatusMessage('Scanning for devices...');
+                
+                // Request Bluetooth device
+                device = await navigator.bluetooth.requestDevice({
+                    filters: [{ namePrefix: 'PicoW' }],
+                    optionalServices: [LED_SERVICE_UUID]
+                });
+                
+                updateStatusMessage('Connecting...');
+                
+                // Connect to GATT server
+                const server = await device.gatt.connect();
+                
+                // Get LED service
+                const service = await server.getPrimaryService(LED_SERVICE_UUID);
+                
+                // Get LED characteristic
+                ledCharacteristic = await service.getCharacteristic(LED_CHAR_UUID);
+                
+                // Update UI
+                updateStatus(true, device.name);
+                updateStatusMessage('Connected successfully');
+                
+                // Listen for disconnection
+                device.addEventListener('gattserverdisconnected', onDisconnected);
+                
+            } catch (error) {
+                console.error(error);
+                updateStatusMessage(`Error: ${error.message || 'Connection failed'}`);
+                updateStatus(false);
+            } finally {
+                setLoading(connectBtn, false);
+            }
+        });
+        
+        // Disconnect button
+        disconnectBtn.addEventListener('click', () => {
+            if (device && device.gatt.connected) {
+                device.gatt.disconnect();
+            } else {
+                onDisconnected();
+            }
+        });
+        
+        // Handle disconnection
+        function onDisconnected() {
+            updateStatus(false);
+            device = null;
+            ledCharacteristic = null;
+        }
+        
+        // Send LED command with feedback
+        async function sendLEDCommand(mode, buttonElement, statusMessage) {
+            if (!ledCharacteristic) return;
+            
+            try {
+                // Visual feedback that command is being sent
+                buttonElement.style.opacity = '0.7';
+                updateStatusMessage(statusMessage);
+                
+                await ledCharacteristic.writeValue(new Uint8Array([mode]));
+                
+                // Reset button after brief delay
+                setTimeout(() => {
+                    buttonElement.style.opacity = '1';
+                }, 300);
+                
+            } catch (error) {
+                console.error(error);
+                updateStatusMessage(`Error: ${error.message}`);
+                buttonElement.style.opacity = '1';
+            }
+        }
+        
+        // Button click handlers
+        onBtn.addEventListener('click', () => 
+            sendLEDCommand(LED_MODE.ON, onBtn, 'LED turned ON'));
+            
+        offBtn.addEventListener('click', () => 
+            sendLEDCommand(LED_MODE.OFF, offBtn, 'LED turned OFF'));
+            
+        flashBtn.addEventListener('click', () => 
+            sendLEDCommand(LED_MODE.FLASH, flashBtn, 'LED flashing...'));
+            
+        pulseBtn.addEventListener('click', () => 
+            sendLEDCommand(LED_MODE.PULSE, pulseBtn, 'LED pulsing...'));
+            
+        sosBtn.addEventListener('click', () => 
+            sendLEDCommand(LED_MODE.SOS, sosBtn, 'Sending SOS pattern...'));
+            
+        heartbeatBtn.addEventListener('click', () => 
+            sendLEDCommand(LED_MODE.HEARTBEAT, heartbeatBtn, 'LED heartbeat pattern...'));
+        
+        // Check if browser supports Web Bluetooth
+        if (!navigator.bluetooth) {
+            updateStatusMessage('Web Bluetooth not supported in this browser');
+            connectBtn.disabled = true;
+            document.querySelector('.note').innerHTML = '<strong>Error:</strong> Your browser does not support Web Bluetooth. Please use Chrome, Edge or another compatible browser.';
+        }
+    </script>
+</body>
+</html>
